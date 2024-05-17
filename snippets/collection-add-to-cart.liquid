@@ -1,5 +1,8 @@
-{%  assign availabale = product.selected_or_first_available_variant.available  %}
-{% unless product.has_only_default_variant  %}
+{% comment  %} 
+{% unless product.has_only_default_variant  %}{% endunless %}
+  {%  assign availabale = product.selected_or_first_available_variant.available  %}
+{% endcomment %}
+
 <select 
     name="ids-{{product.id}}"
     id="variants-{{product.id}}"
@@ -14,13 +17,13 @@
     {% if variant.availabale == false %}
       disabled
     {% endif %}
-    value="{{variant.id}}">
+    value="{{variant.id}}" data-c-price="{{variant.compare_at_price}}" data-price="{{variant.price}}">
     {{variant.title}}
-  
+    
     </option>
 {% endfor %}
 </select>
-{% endunless %}
+
 <quantity-input class="quantity custm-q" data-url="{{ product.url }}" data-product="{{ product.id }}">
                       <button class="quantity__button" name="minus" type="button">
                         <span class="visually-hidden">
@@ -56,7 +59,7 @@
   <input type="hidden" id="getvarid" value="{{ variant.id }}">
 {% endfor %}
   <button type="button" class="ajax-cart-btn" name="add" id="collection-cart-{{ product.id }}">
-    {% if availabale == true %}
+    {% if product.selected_or_first_available_variant.available == true %}
     Add To Cart  
       {% else %}
       Sold Out
@@ -69,6 +72,7 @@
     //let vargetid = $(this).parents('.custom-ajax-addtocart').find('#getvarid').val();
     let vargetid = $("select[name='ids-{{product.id}}']").val();
     let getquantity = $('#Quantity-{{ product.id }}').val();
+    
     //console.log('ok:'+ vargetid);
     let formobj = {
       quantity: getquantity,
@@ -98,8 +102,8 @@
       error: function(xhr, ajaxOption, thrownError){
         console.log("error in adding product");
       }
+      
     });
- 
   });
-
+  
 </script>
