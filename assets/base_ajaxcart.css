@@ -1,0 +1,24 @@
+
+.custom-ajax-addtocart {
+    position: relative;
+    z-index: 6;
+}
+.custom-ajax-addtocart:hover * {
+    cursor: pointer;
+}
+
+.ajax-cart-btn {
+    padding: 10px 40px;
+   
+    text-transform: capitalize;
+    color: #fff;
+    background: #000;
+}
+quantity-input.quantity.custm-q{
+    position: relative;
+    z-index: 6;
+}
+.card__heading a {
+    position: relative;
+    z-index: 1;
+}

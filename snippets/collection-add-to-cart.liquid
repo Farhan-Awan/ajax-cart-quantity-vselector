@@ -1,0 +1,105 @@
+{%  assign availabale = product.selected_or_first_available_variant.available  %}
+{% unless product.has_only_default_variant  %}
+<select 
+    name="ids-{{product.id}}"
+    id="variants-{{product.id}}"
+    class="select_select"
+    form="{{product_form_id}}"
+  >
+{% for variant in product.variants %}
+  <option
+  {% if variant == product.selected_or_first_available_variant %}
+    selected="selected"
+    {%endif%}
+    {% if variant.availabale == false %}
+      disabled
+    {% endif %}
+    value="{{variant.id}}">
+    {{variant.title}}
+  
+    </option>
+{% endfor %}
+</select>
+{% endunless %}
+<quantity-input class="quantity custm-q" data-url="{{ product.url }}" data-product="{{ product.id }}">
+                      <button class="quantity__button" name="minus" type="button">
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-minus' %}
+                      </button>
+                      <input
+                        class="quantity__input"
+                        type="number"
+                        name="quantity"
+                        id="Quantity-{{ product.id }}"
+                        data-cart-quantity="{{ cart_qty }}"
+                        data-min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                        min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                        {% if product.selected_or_first_available_variant.quantity_rule.max != null %}
+                          data-max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                          max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                        {% endif %}
+                        step="{{ product.selected_or_first_available_variant.quantity_rule.increment }}"
+                        value="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                        form="{{ product_form_id }}"
+                      >
+                      <button class="quantity__button" name="plus" type="button">
+                        <span class="visually-hidden">
+                          {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                        </span>
+                        {% render 'icon-plus' %}
+                      </button>
+                    </quantity-input>
+<div class="custom-ajax-addtocart">
+  {% for variant in product.variants %}
+  <input type="hidden" id="getvarid" value="{{ variant.id }}">
+{% endfor %}
+  <button type="button" class="ajax-cart-btn" name="add" id="collection-cart-{{ product.id }}">
+    {% if availabale == true %}
+    Add To Cart  
+      {% else %}
+      Sold Out
+    {% endif %}
+  </button>
+</div>
+
+<script>
+  $(document).on('click', '#collection-cart-{{ product.id }}', function(){
+    //let vargetid = $(this).parents('.custom-ajax-addtocart').find('#getvarid').val();
+    let vargetid = $("select[name='ids-{{product.id}}']").val();
+    let getquantity = $('#Quantity-{{ product.id }}').val();
+    //console.log('ok:'+ vargetid);
+    let formobj = {
+      quantity: getquantity,
+      id: vargetid
+    };
+    $.ajax({
+      type: "POST",
+      url: "/cart/add.js",
+      cache: false,
+      data: formobj,
+      dataType: "json",
+      success: function(data){
+        console.log('Product added to cart successfully');
+        $('cart-drawer').removeClass('is-empty');
+        $('.drawer__inner-empty').hide();
+        // Refresh the cart drawer content
+        $('.drawer').load('/cart #CartDrawer', function() {
+            console.log('Cart drawer content refreshed');
+        });
+       $.getJSON('/cart.js', function(cart) {
+            var itemCount = cart.item_count;
+            $('.cart-count-bubble span[aria-hidden="true"]').text(itemCount);
+            $('.cart-count-bubble .visually-hidden').text(itemCount + ' items');
+        });
+        $('.cart-count-bubble').click();
+    },
+      error: function(xhr, ajaxOption, thrownError){
+        console.log("error in adding product");
+      }
+    });
+ 
+  });
+
+</script>
